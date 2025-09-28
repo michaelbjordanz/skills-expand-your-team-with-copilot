@@ -125,3 +125,6 @@ temp/
 *.pem
 *.key
 *.crt
+
+# Web5 local data
+DATA/
