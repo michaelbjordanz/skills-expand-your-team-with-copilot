@@ -1,0 +1,335 @@
+{
+  "name": "Web5 Fintech Payment Processing",
+  "version": 1,
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Validate Payment",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Validate Payment": {
+      "main": [
+        [
+          {
+            "node": "Choose Payment Method",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Choose Payment Method": {
+      "main": [
+        [
+          {
+            "node": "Mastercard API",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "PayPal API",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Braintree API",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Plaid API",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Mastercard API": {
+      "main": [
+        [
+          {
+            "node": "Record in Web5",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "PayPal API": {
+      "main": [
+        [
+          {
+            "node": "Record in Web5",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Braintree API": {
+      "main": [
+        [
+          {
+            "node": "Record in Web5",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Plaid API": {
+      "main": [
+        [
+          {
+            "node": "Record in Web5",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Record in Web5": {
+      "main": [
+        [
+          {
+            "node": "Send Notification",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "payment-webhook",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [240, 300],
+      "webhookId": "web5-payment-webhook"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "boolean": [],
+          "number": [
+            {
+              "value1": "={{$json.amount}}",
+              "operation": "larger",
+              "value2": 0
+            }
+          ],
+          "string": [
+            {
+              "value1": "={{$json.currency}}",
+              "operation": "isNotEmpty"
+            },
+            {
+              "value1": "={{$json.paymentMethod}}",
+              "operation": "isNotEmpty"
+            }
+          ]
+        }
+      },
+      "name": "Validate Payment",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [460, 300]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{$json.paymentMethod}}",
+              "value2": "mastercard"
+            }
+          ]
+        }
+      },
+      "name": "Choose Payment Method",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 1,
+      "position": [680, 300]
+    },
+    {
+      "parameters": {
+        "url": "={{$node.Webhook.json.apiEndpoint}}/api/payments/mastercard",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "amount",
+              "value": "={{$json.amount}}"
+            },
+            {
+              "name": "currency",
+              "value": "={{$json.currency}}"
+            },
+            {
+              "name": "customerInfo",
+              "value": "={{$json.customerInfo}}"
+            }
+          ]
+        }
+      },
+      "name": "Mastercard API",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [900, 180]
+    },
+    {
+      "parameters": {
+        "url": "={{$node.Webhook.json.apiEndpoint}}/api/payments/paypal",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "amount",
+              "value": "={{$json.amount}}"
+            },
+            {
+              "name": "currency",
+              "value": "={{$json.currency}}"
+            },
+            {
+              "name": "customerInfo",
+              "value": "={{$json.customerInfo}}"
+            }
+          ]
+        }
+      },
+      "name": "PayPal API",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [900, 300]
+    },
+    {
+      "parameters": {
+        "url": "={{$node.Webhook.json.apiEndpoint}}/api/payments/braintree",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "amount",
+              "value": "={{$json.amount}}"
+            },
+            {
+              "name": "currency",
+              "value": "={{$json.currency}}"
+            },
+            {
+              "name": "customerInfo",
+              "value": "={{$json.customerInfo}}"
+            }
+          ]
+        }
+      },
+      "name": "Braintree API",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [900, 420]
+    },
+    {
+      "parameters": {
+        "url": "={{$node.Webhook.json.apiEndpoint}}/api/payments/plaid",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "amount",
+              "value": "={{$json.amount}}"
+            },
+            {
+              "name": "currency",
+              "value": "={{$json.currency}}"
+            },
+            {
+              "name": "customerInfo",
+              "value": "={{$json.customerInfo}}"
+            }
+          ]
+        }
+      },
+      "name": "Plaid API",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [900, 540]
+    },
+    {
+      "parameters": {
+        "url": "={{$node.Webhook.json.apiEndpoint}}/api/web5/payments",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "from",
+              "value": "={{$json.customerInfo.email}}"
+            },
+            {
+              "name": "to",
+              "value": "merchant"
+            },
+            {
+              "name": "amount",
+              "value": "={{$json.amount}}"
+            },
+            {
+              "name": "currency",
+              "value": "={{$json.currency}}"
+            },
+            {
+              "name": "status",
+              "value": "completed"
+            },
+            {
+              "name": "transactionHash",
+              "value": "={{$json.transactionId}}"
+            }
+          ]
+        }
+      },
+      "name": "Record in Web5",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [1120, 360]
+    },
+    {
+      "parameters": {
+        "message": "Payment processed successfully: ${{$json.amount}} {{$json.currency}} via {{$json.paymentMethod}}"
+      },
+      "name": "Send Notification",
+      "type": "n8n-nodes-base.sendEmail",
+      "typeVersion": 1,
+      "position": [1340, 360]
+    }
+  ],
+  "settings": {
+    "saveDataErrorExecution": "all",
+    "saveDataSuccessExecution": "all",
+    "saveManualExecutions": true,
+    "callerPolicy": "workflowsFromSameOwner"
+  },
+  "staticData": null,
+  "tags": ["fintech", "web5", "payments", "automation"],
+  "triggerCount": 1,
+  "updatedAt": "2024-01-01T00:00:00.000Z"
+}
